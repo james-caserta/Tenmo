@@ -16,7 +16,7 @@ import java.util.List;
 public class JdbcUserDao implements UserDao {
 
     private static final BigDecimal STARTING_BALANCE = new BigDecimal("1000.00");
-    private JdbcTemplate jdbcTemplate;
+    private final JdbcTemplate jdbcTemplate;
 
     public JdbcUserDao(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
@@ -30,7 +30,7 @@ public class JdbcUserDao implements UserDao {
             return id;
         } else {
             return -1;
-    }
+        }
     }
 
     @Override
@@ -51,7 +51,7 @@ public class JdbcUserDao implements UserDao {
         SqlRowSet rowSet = jdbcTemplate.queryForRowSet(sql, username);
         if (rowSet.next()){
             return mapRowToUser(rowSet);
-            }
+        }
         throw new UsernameNotFoundException("User " + username + " was not found.");
     }
 
@@ -66,7 +66,7 @@ public class JdbcUserDao implements UserDao {
             newUserId = jdbcTemplate.queryForObject(sql, Integer.class, username, password_hash);
         } catch (DataAccessException e) {
             return false;
-                }
+        }
 
         // create account
         sql = "INSERT INTO accounts (user_id, balance) values(?, ?)";
@@ -79,9 +79,41 @@ public class JdbcUserDao implements UserDao {
         return true;
     }
 
+
+    @Override
+    public User findUserById(int id) {
+        User user = new User();
+        String sql = "SELECT * FROM users WHERE user_id = ?";
+        SqlRowSet result = jdbcTemplate.queryForRowSet(sql, id);
+        if (result.next()) {
+            user = mapRowToUser(result);
+        }
+        return user;
+    }
+
+    @Override
+    public String findUsernameByAccountId(int accountId) {
+        String username = "";
+        String sql = "SELECT username FROM users AS u INNER JOIN accounts AS a ON u.user_id = a.user_id WHERE a.account_id = ?";
+        SqlRowSet result = jdbcTemplate.queryForRowSet(sql, accountId);
+        if (result.next())
+            username = result.getString("username");
+        return username;
+    }
+
+    public User findUserByAccountId(int accountId) {
+        User accountOwner = new User();
+        String sql = "SELECT u.* FROM users AS u INNER JOIN accounts AS a ON u.user_id = a.user_id WHERE a.account_id = ?";
+        SqlRowSet result = jdbcTemplate.queryForRowSet(sql, accountId);
+        if (result.next()) {
+            accountOwner = mapRowToUser(result);
+        }
+        return accountOwner;
+    }
+
     private User mapRowToUser(SqlRowSet rs) {
         User user = new User();
-        user.setId(rs.getLong("user_id"));
+        user.setId(rs.getInt("user_id"));
         user.setUsername(rs.getString("username"));
         user.setPassword(rs.getString("password_hash"));
         user.setActivated(true);

@@ -16,6 +16,11 @@ public class ConsoleService {
 		this.in = new Scanner(input);
 	}
 
+// CONSTRUCTOR - empty//
+	public ConsoleService() {
+
+	}
+
 	public Object getChoiceFromOptions(Object[] options) {
 		Object choice = null;
 		while (choice == null) {

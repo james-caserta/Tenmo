@@ -1,30 +1,32 @@
 package com.techelevator.tenmo.model;
 
+import javax.annotation.Nonnull;
 import java.math.BigDecimal;
 
-public class Accounts {
-    private int accountId;
-    private int userId;
+public class Account {
+    private Long accountId;
+    private Long userId;
     private BigDecimal balance;
 
-    public Accounts(int accountId, int userId, BigDecimal balance) {
+    public Account(Long accountId, Long userId, BigDecimal balance) {
         this.accountId = accountId;
         this.userId = userId;
         this.balance = balance;
     }
 
-    public Accounts() {
-
+    @Nonnull
+    public Account() {
+        // called by accountService but this is an empty constructor?
     }
 
 
-    public int getAccountId() { return accountId; }
+    public Long getAccountId() { return accountId; }
 
-    public void setAccountId(int accountId) { this.accountId = accountId; }
+    public void setAccountId(Long accountId) { this.accountId = accountId; }
 
-    public int getUserId() { return userId; }
+    public Long getUserId() { return userId; }
 
-    public void setUserId(int userId) { this.userId = userId; }
+    public void setUserId(Long userId) { this.userId = userId; }
 
     public BigDecimal getBalance() { return balance; }
 

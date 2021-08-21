@@ -16,7 +16,7 @@ import java.util.List;
 public class JdbcUserDao implements UserDao {
 
     private static final BigDecimal STARTING_BALANCE = new BigDecimal("1000.00");
-    private final JdbcTemplate jdbcTemplate;
+    private JdbcTemplate jdbcTemplate;
 
     public JdbcUserDao(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
@@ -52,7 +52,7 @@ public class JdbcUserDao implements UserDao {
         if (rowSet.next()){
             return mapRowToUser(rowSet);
         }
-        throw new UsernameNotFoundException("User " + username + " was not found.");
+        throw new UsernameNotFoundException("The user was not found.");
     }
 
     @Override
@@ -80,8 +80,8 @@ public class JdbcUserDao implements UserDao {
     }
 
 
-    @Override
-    public User findUserById(int id) {
+
+    public User findUserById(long id) {
         User user = new User();
         String sql = "SELECT * FROM users WHERE user_id = ?";
         SqlRowSet result = jdbcTemplate.queryForRowSet(sql, id);
@@ -91,8 +91,8 @@ public class JdbcUserDao implements UserDao {
         return user;
     }
 
-    @Override
-    public String findUsernameByAccountId(int accountId) {
+
+    public String findUsernameByAccountId(long accountId) {
         String username = "";
         String sql = "SELECT username FROM users AS u INNER JOIN accounts AS a ON u.user_id = a.user_id WHERE a.account_id = ?";
         SqlRowSet result = jdbcTemplate.queryForRowSet(sql, accountId);
@@ -101,7 +101,7 @@ public class JdbcUserDao implements UserDao {
         return username;
     }
 
-    public User findUserByAccountId(int accountId) {
+    public User findUserByAccountId(long accountId) {
         User accountOwner = new User();
         String sql = "SELECT u.* FROM users AS u INNER JOIN accounts AS a ON u.user_id = a.user_id WHERE a.account_id = ?";
         SqlRowSet result = jdbcTemplate.queryForRowSet(sql, accountId);
@@ -111,9 +111,12 @@ public class JdbcUserDao implements UserDao {
         return accountOwner;
     }
 
+
+
+
     private User mapRowToUser(SqlRowSet rs) {
         User user = new User();
-        user.setId(rs.getInt("user_id"));
+        user.setId(rs.getLong("user_id"));
         user.setUsername(rs.getString("username"));
         user.setPassword(rs.getString("password_hash"));
         user.setActivated(true);

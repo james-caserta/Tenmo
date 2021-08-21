@@ -3,10 +3,10 @@ package com.techelevator.tenmo.model;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
-
+// Server
 public class User {
 
-   private int id;
+   private Long id;
    private String username;
    private String password;
    private boolean activated;
@@ -14,7 +14,7 @@ public class User {
 
    public User() { }
 
-   public User(int id, String username, String password, String authorities) {
+   public User(Long id, String username, String password, String authorities) {
       this.id = id;
       this.username = username;
       this.password = password;
@@ -22,7 +22,12 @@ public class User {
    }
 
 
-   public void setId(int id) {
+
+   public Long getId() {
+      return id;
+   }
+
+   public void setId(Long id) {
       this.id = id;
    }
 
@@ -90,9 +95,5 @@ public class User {
               ", activated=" + activated +
               ", authorities=" + authorities +
               '}';
-   }
-
-   public int getId() {
-      return 0;
    }
 }

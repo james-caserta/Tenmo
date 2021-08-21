@@ -1,17 +1,18 @@
 package com.techelevator.tenmo.dao;
 
-import com.techelevator.tenmo.model.Accounts;
-import org.springframework.stereotype.Component;
-
 import java.math.BigDecimal;
 
-@Component
+
+import com.techelevator.tenmo.model.Accounts;
+
 public interface AccountsDao {
 
-    BigDecimal viewCurrentBalance(int userId);
+    BigDecimal viewCurrentBalance(long userId);
 
     BigDecimal creditBalance(Accounts account, BigDecimal amountToAdd);
+
     BigDecimal deductBalance(Accounts account, BigDecimal amountToSubtract);
 
-    Accounts findAccountByUserId(int userId);
+    Accounts findAccountByUserId(long userId);
+
 }

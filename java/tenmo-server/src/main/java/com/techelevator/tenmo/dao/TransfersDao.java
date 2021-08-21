@@ -1,16 +1,24 @@
 package com.techelevator.tenmo.dao;
 
-import com.techelevator.tenmo.model.Accounts;
-import com.techelevator.tenmo.model.Transfers;
-import org.springframework.stereotype.Component;
-
+import java.math.BigDecimal;
 import java.util.List;
 
-@Component
+import com.techelevator.tenmo.model.Accounts;
+
+import com.techelevator.tenmo.model.Transfer;
+
 public interface TransfersDao {
 
-    boolean addRowToTransfer(Transfers transfer);
-    List<Transfers> getAllTransfers(Accounts account);
-    void updateTransfer(Transfers transfer);
+
+
+    boolean addRowToTransfer(Transfer transfer);
+
+
+
+    List<Transfer> getAllTransfers(Accounts account);
+
+
+
+    void updateTransfer(Transfer transfer);
 
 }

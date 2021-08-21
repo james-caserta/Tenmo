@@ -1,38 +1,38 @@
 package com.techelevator.tenmo.dao;
 
-import com.techelevator.tenmo.model.Accounts;
-import com.techelevator.tenmo.model.Transfers;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
-import java.util.List;
-
+import com.techelevator.tenmo.model.Accounts;
+import com.techelevator.tenmo.model.Transfer;
 @Component
-public class JdbcTransfersDao {
+public class JdbcTransfersDao implements TransfersDao {
 
-    private final JdbcTemplate jdbcTemplate;
-    private final UserDao userDao;
+    private JdbcTemplate jdbcTemplate;
+    private UserDao userDao;
 
     public JdbcTransfersDao(JdbcTemplate jdbcTemplate, UserDao userDao) {
         this.jdbcTemplate = jdbcTemplate;
         this.userDao = userDao;
     }
 
-
-    public List<Transfers> getAllTransfers(Accounts account){
-        List<Transfers> transfers = new ArrayList<>();
+    @Override
+    public List<Transfer> getAllTransfers(Accounts Accounts){
+        List<Transfer> transfers = new ArrayList<>();
         String sql = "SELECT * FROM transfers AS t INNER JOIN transfer_statuses AS ts ON t.transfer_status_id = ts.transfer_status_id INNER JOIN transfer_types AS tt ON t.transfer_type_id = tt.transfer_type_id WHERE t.account_from = ? OR t.account_to = ?";
-        SqlRowSet results = jdbcTemplate.queryForRowSet(sql, account.getAccountId(), account.getAccountId());
+        SqlRowSet results = jdbcTemplate.queryForRowSet(sql, Accounts.getAccountId(), Accounts.getAccountId());
         while(results.next()) {
-            Transfers transfer = mapRowToTransfer(results);
+            Transfer transfer = mapRowToTransfer(results);
             transfers.add(transfer);
         }
         return transfers;
     }
 
-    private int getTransferTypeId(Transfers transfer) {
+    private int getTransferTypeId(Transfer transfer) {
         String sqlGetTransferTypeId = "SELECT transfer_type_id FROM transfer_types WHERE transfer_type_desc = ?";
         SqlRowSet transferTypeResult = jdbcTemplate.queryForRowSet(sqlGetTransferTypeId, transfer.getTransferType());
         int transferTypeId = 0;
@@ -43,7 +43,7 @@ public class JdbcTransfersDao {
         return transferTypeId;
     }
 
-    private int getTransferStatusId(Transfers transfer) {
+    private int getTransferStatusId(Transfer transfer) {
         String sqlGetTransferStatusId = "SELECT transfer_Status_id FROM transfer_statuses WHERE transfer_status_desc = ?";
         SqlRowSet transferStatusResult = jdbcTemplate.queryForRowSet(sqlGetTransferStatusId,
                 transfer.getTransferStatus());
@@ -56,8 +56,8 @@ public class JdbcTransfersDao {
     }
 
     // Creates new row in transfers table
-
-    public boolean addRowToTransfer(Transfers transfer) {
+    @Override
+    public boolean addRowToTransfer(Transfer transfer) {
         // We successfully retrieve both the status and type IDs
         int statusId = getTransferStatusId(transfer);
         int typeId = getTransferTypeId(transfer);
@@ -67,11 +67,11 @@ public class JdbcTransfersDao {
             SqlRowSet transferIdResult = jdbcTemplate.queryForRowSet(sqlAddRowToTransfer,
                     typeId,
                     statusId,
-                    transfer.getAccountIdFrom(),
-                    transfer.getAccountIdTo(),
+                    transfer.getAccountFromId(),
+                    transfer.getAccountToId(),
                     transfer.getAmount());
             if (transferIdResult.next()) {
-                transfer.setTransferId(transferIdResult.getInt("transfer_id"));
+                transfer.setTransferId(transferIdResult.getLong("transfer_id"));
                 return true;
             }
         }
@@ -79,21 +79,21 @@ public class JdbcTransfersDao {
 
     }
 
-    private Transfers mapRowToTransfer(SqlRowSet results) {
-        Transfers transfer = new Transfers();
-        transfer.setAccountIdFrom(results.getInt("account_from"));
-        transfer.setAccountIdTo(results.getInt("account_to"));
+    private Transfer mapRowToTransfer(SqlRowSet results) {
+        Transfer transfer = new Transfer();
+        transfer.setAccountFromId(results.getLong("account_from"));
+        transfer.setAccountToId(results.getLong("account_to"));
         transfer.setAmount(results.getBigDecimal("amount"));
-        transfer.setTransferId(results.getInt("transfer_id"));
+        transfer.setTransferId(results.getLong("transfer_id"));
         transfer.setTransferStatus(results.getString("transfer_status_desc"));
         transfer.setTransferType(results.getString("transfer_type_desc"));
-        transfer.setAccountNameFrom(userDao.findUsernameByAccountId(results.getInt("account_from")));
-        transfer.setAccountNameTo(userDao.findUsernameByAccountId(results.getInt("account_to")));
+        transfer.setAccountFromName(userDao.findUsernameByAccountId(results.getLong("account_from")));
+        transfer.setAccountToName(userDao.findUsernameByAccountId(results.getLong("account_to")));
         return transfer;
     }
 
-
-    public void updateTransfer(Transfers transfer) {
+    @Override
+    public void updateTransfer(Transfer transfer) {
         // Pull the transfer by transfer ID and update its status
         String sql = "UPDATE transfers SET transfer_status_id = "
                 + "(SELECT transfer_statuses.transfer_status_id FROM transfer_statuses "

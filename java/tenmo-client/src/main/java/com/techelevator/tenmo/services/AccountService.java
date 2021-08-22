@@ -2,6 +2,7 @@ package com.techelevator.tenmo.services;
 
 import java.math.BigDecimal;
 
+import com.techelevator.tenmo.model.Transfer;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -11,7 +12,6 @@ import org.springframework.web.client.RestTemplate;
 
 import com.techelevator.tenmo.model.Account;
 import com.techelevator.tenmo.model.AuthenticatedUser;
-import com.techelevator.tenmo.model.Transfer;
 import com.techelevator.tenmo.model.User;
 
 public class AccountService {
@@ -28,7 +28,9 @@ public class AccountService {
         BigDecimal balance = new BigDecimal("0.00");
         Account account = new Account();
         try {
-            account = restTemplate.exchange(BASE_URL + "account/balance", HttpMethod.GET, makeAccountEntity(user), Account.class).getBody();
+            account = restTemplate
+                    .exchange(BASE_URL + "account/balance", HttpMethod.GET, makeAccountEntity(user), Account.class)
+                    .getBody();
         } catch (RestClientResponseException ex) {
             System.out.println(ex.getRawStatusCode() + " : " + ex.getResponseBodyAsString());
         }

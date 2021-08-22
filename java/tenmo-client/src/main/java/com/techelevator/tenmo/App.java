@@ -33,15 +33,15 @@ public class App {
             MAIN_MENU_OPTION_VIEW_PENDING_REQUESTS, MAIN_MENU_OPTION_LOGIN, MENU_OPTION_EXIT };
 
     private AuthenticatedUser currentUser;
-    private final ConsoleService console;
-    private final AuthenticationService authenticationService;
-    private final AccountService accountService;
+    private ConsoleService console;
+    private AuthenticationService authenticationService;
+    private AccountService accountService;
 
     private static final String TRANSFER_TYPE_SEND = "Send";
     private static final String TRANSFER_TYPE_REQUEST = "Request";
     private static final String TRANSFER_STATUS_APPROVED = "Approved";
     private static final String TRANSFER_STATUS_PENDING = "Pending";
-//    private static final String TRANSFER_STATUS_REJECTED = "Rejected";
+    private static final String TRANSFER_STATUS_REJECTED = "Rejected";
 
     public static void main(String[] args) {
         App app = new App(new ConsoleService(System.in, System.out), new AuthenticationService(API_BASE_URL),
@@ -87,7 +87,7 @@ public class App {
     }
 
     private void viewCurrentBalance() {
-        // System.out.println("user = " + user.getUsername());
+
         BigDecimal balance = accountService.getBalance(currentUser);
         System.out.println("\nYour current balance is: $ " + balance);
 
@@ -95,8 +95,8 @@ public class App {
 
     private void viewTransferHistory() {
         Transfer[] pastTransfers = accountService.getTransferHistoryClient(currentUser);
-        String transferMenu = String.format("\nTransfer History\n%-10s%-30s%-10s%-7s", "ID", "From/To", "Status",
-                "Amount");
+        String transferMenu = String.format("\nTransfer History\n" +"ID     "+ "   From/To         "+ "              Status"+
+                "     Amount");
         for (Transfer transfer : pastTransfers) {
             // If I initiate the send/request, print To: person who needs to react
             // If they initiate, print From: person who started the transfer
@@ -111,7 +111,7 @@ public class App {
             choice = console.getUserInputInteger(transferMenu);
 
         } catch (NumberFormatException ex) {
-            System.out.println("*** Invalid transfer ID number ***");
+            System.out.println("Invalid transfer ID number");
         }
         boolean found = false;
         if (choice == 0)

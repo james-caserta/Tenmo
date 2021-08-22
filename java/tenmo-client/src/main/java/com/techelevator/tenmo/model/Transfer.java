@@ -35,9 +35,9 @@ public class Transfer {
         this.amount = amount;
 
     }
-//    public Transfer() {
-//
-//    }
+    public Transfer() {
+
+    }
 
     public String getAccountFromName() {
         return accountFromName;

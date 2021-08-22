@@ -1,6 +1,5 @@
 package com.techelevator.tenmo.model;
 
-import javax.annotation.Nonnull;
 import java.math.BigDecimal;
 
 public class Account {
@@ -14,9 +13,8 @@ public class Account {
         this.balance = balance;
     }
 
-    @Nonnull
     public Account() {
-        // called by accountService but this is an empty constructor?
+
     }
 
 
@@ -43,3 +41,39 @@ public class Account {
     }
 }
 
+//package com.techelevator.tenmo.model;
+//
+//public class Accounts {
+//    private Long accountId;
+//    private int userId;
+//    private double balance;
+//
+//
+//    public Accounts() {
+//        this.accountId = accountId;
+//        this.userId = userId;
+//        this.balance = balance;
+//    }
+//
+//    public Long getAccountId() { return accountId; }
+//
+//    public void setAccountId(Long accountId) { this.accountId = accountId; }
+//
+//    public int getUserId() { return userId; }
+//
+//    public void setUserId(int userId) { this.userId = userId; }
+//
+//    public double getBalance() { return balance; }
+//
+//    public void setBalance(double balance) { this.balance = balance; }
+//
+//
+//    @Override
+//    public String toString() {
+//        return "Accounts{" +
+//                "account_id=" + accountId +
+//                ", user_id=" + userId +
+//                ", balance=" + balance +
+//                '}';
+//    }
+//}

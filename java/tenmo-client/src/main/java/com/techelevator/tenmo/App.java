@@ -38,10 +38,10 @@ public class App {
     private AccountService accountService;
 
     private static final String TRANSFER_TYPE_SEND = "Send";
-    private static final String TRANSFER_TYPE_REQUEST = "Request";
+//    private static final String TRANSFER_TYPE_REQUEST = "Request";
     private static final String TRANSFER_STATUS_APPROVED = "Approved";
-    private static final String TRANSFER_STATUS_PENDING = "Pending";
-    private static final String TRANSFER_STATUS_REJECTED = "Rejected";
+//    private static final String TRANSFER_STATUS_PENDING = "Pending";
+
 
     public static void main(String[] args) {
         App app = new App(new ConsoleService(System.in, System.out), new AuthenticationService(API_BASE_URL),
@@ -95,17 +95,16 @@ public class App {
 
     private void viewTransferHistory() {
         Transfer[] pastTransfers = accountService.getTransferHistoryClient(currentUser);
-        String transferMenu = String.format("\nTransfer History\n" +"ID     "+ "   From/To         "+ "              Status"+
-                "     Amount");
+// print transaction
+        String transferMenu = String.format("\nTransfer History\n"+"ID     "+"   From/To         "+"              Status"+"     Amount");
         for (Transfer transfer : pastTransfers) {
-            // If I initiate the send/request, print To: person who needs to react
-            // If they initiate, print From: person who started the transfer
+// print history
             String fromTo = (transfer.getAccountFromId() == currentUser.getUser().getId()) ?
                     "To: " + transfer.getAccountToName() : "From: " + transfer.getAccountFromName();
-            transferMenu = String.format(transferMenu + "\n%-10d%-30s%-10s$%7.2f", transfer.getTransferId(), fromTo,
-                    transfer.getTransferStatus(), transfer.getAmount());
+            System.out.print(transferMenu +"\n"+ transfer.getTransferId()+ "      " + fromTo+
+                    "                    " + transfer.getTransferStatus()+ "       " + transfer.getAmount());
         }
-        transferMenu += "\nPlease enter transfer ID to view details (0 to cancel.) ";
+        transferMenu += "\nEnter transfer ID for details (Cancel: 0) ";
         int choice = 0;
         try {
             choice = console.getUserInputInteger(transferMenu);
@@ -114,9 +113,9 @@ public class App {
             System.out.println("Invalid transfer ID number");
         }
         boolean found = false;
-        if (choice == 0)
-            return;
-        else {
+//        if (choice == 0)
+//            return;
+        if (choice != 0){
             for (Transfer transfer : pastTransfers) {
                 if (transfer.getTransferId() == choice) {
                     System.out.println("\nTransfer Details: ");
@@ -131,7 +130,7 @@ public class App {
             }
             if (!found) {
 
-                System.out.println("Please choose a valid transfer ID or 0 to cancel");
+                System.out.println("Please choose a valid transfer ID (Cancel: 0)");
 
                 System.out.println("*** Transfer not found ***");
 
@@ -140,58 +139,19 @@ public class App {
     }
 
     private void viewPendingRequests() {
-        Transfer[] allTransfers = accountService.getTransferHistoryClient(currentUser);
-        List<Transfer> pendingList = new ArrayList<>();
-        String pendingTransferMenu = String.format("\nPending Transfers\n%-10s%-30s%-7s", "ID", "From/To",
-                "Amount");
-        for (Transfer transfer : allTransfers) {
-            if (transfer.getTransferStatus().equalsIgnoreCase(TRANSFER_STATUS_PENDING)) {
-                // If the transfer is a Request and I am the requester,
-                // print out To: [Person I'm asking for money]
-                // And if I am being asked for money,
-                // print out FROM: [Requester]
-                pendingList.add(transfer);
-                String fromTo = (transfer.getAccountFromId() == currentUser.getUser().getId()) ?
-                        "To: " + transfer.getAccountToName() : "From: " + transfer.getAccountFromName();
-                pendingTransferMenu = String.format(pendingTransferMenu + "\n%-10d%-30s$%7.2f",
-                        transfer.getTransferId(), fromTo, transfer.getAmount());
-            }
-
-        }
-        pendingTransferMenu += "\nPlease enter transfer ID to approve/reject (0 to cancel)";
-        int userChoice = 0;
-        Transfer[] pending = pendingList.toArray(new Transfer[pendingList.size()]);
-        try {
-            userChoice = console.getUserInputInteger(pendingTransferMenu);
-        } catch (NumberFormatException ex) {
-            System.out.println("*** Invalid transfer ID number ***");
-        }
-        boolean wasFound = false;
-        if (userChoice == 0)
-            return;
-        else {
-            for (Transfer transfer : pending) {
-                if (transfer.getTransferId() == userChoice) {
-                    System.out.println("*** Not yet implemented ***");
-                    wasFound = true;
-                }
-            }
-            if (!wasFound) {
-                System.out.println("*** Transfer not found ***");
-            }
-        }
+//       not happening
     }
 
     private void sendBucks() {
-        // Makes menu
+// send menu
         String userMenu = String.format("\nUsers\n%-10s%-30s", "ID", "Name");
         User[] users = accountService.getAllUsers(currentUser);
         for (User user : users) {
             userMenu = String.format(userMenu + "\n%-10d%-30s", user.getId(), user.getUsername());
         }
-        userMenu += "\n\nEnter ID of user you are sending to (0 to cancel)";
+        userMenu += "\n\nEnter ID of user you are sending to (Cancel: 0)";
 
-        // Gets user choice
+//user chooses id
         int sendToChoice = 0;
         try {
             sendToChoice = console.getUserInputInteger(userMenu);
@@ -207,9 +167,8 @@ public class App {
             System.out.println("Invalid money amount.");
         }
 
-        // If the amount being sent is positive
-        // POST transfer object to server
-        if (amount.compareTo(BigDecimal.ZERO) == 1) {
+// posts to server
+        if (amount.compareTo(BigDecimal.ZERO) > 0) {
             Transfer sendTransfer = new Transfer(TRANSFER_TYPE_SEND, TRANSFER_STATUS_APPROVED,
                     currentUser.getUser().getId(), (long) sendToChoice, amount);
             accountService.sendTransfer(currentUser, sendTransfer);
@@ -219,32 +178,7 @@ public class App {
     }
 
     private void requestBucks() {
-        // Makes menu
-        String userMenu = String.format("\nUsers\n%-10s%-30s", "ID", "Name");
-        User[] users = accountService.getAllUsers(currentUser);
-        for (User user : users) {
-            userMenu = String.format(userMenu + "\n%-10d%-30s", user.getId(), user.getUsername());
-        }
-        userMenu += "\n\nEnter ID of user you are requesting from (0 to cancel)";
-        // Gets user choice
-        int sendToChoice = console.getUserInputInteger(userMenu);
-        if (sendToChoice == 0)
-            return;
-        BigDecimal amount = BigDecimal.ZERO;
-        try {
-            amount = new BigDecimal(console.getUserInput("Enter amount of TEBucks"));
-        } catch (NumberFormatException ex) {
-            System.out.println("Invalid money amount");
-        }
-        // If the amount being sent is positive
-        // POST transfer object to server
-        if (amount.compareTo(BigDecimal.ZERO) == 1) {
-            Transfer sendTransfer = new Transfer(TRANSFER_TYPE_REQUEST, TRANSFER_STATUS_PENDING,
-                    currentUser.getUser().getId(), (long) sendToChoice, amount);
-            accountService.requestTransfer(currentUser, sendTransfer);
-            viewCurrentBalance();
-        }
-
+        // No no no no no noooooope
     }
 
     private void exitProgram() {

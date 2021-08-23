@@ -16,21 +16,19 @@ import com.techelevator.tenmo.model.User;
 
 public class AccountService {
     public static String AUTH_TOKEN = "";
-    private final String BASE_URL;
+    private String API_BASE_URL;
     public RestTemplate restTemplate = new RestTemplate();
 
     public AccountService(String url) {
-        BASE_URL = url;
+        API_BASE_URL = url;
     }
 
     public BigDecimal getBalance(AuthenticatedUser user) {
         AUTH_TOKEN = user.getToken();
         BigDecimal balance = new BigDecimal("0.00");
-        Account account = new Account();
+        Account account = null;
         try {
-            account = restTemplate
-                    .exchange(BASE_URL + "account/balance", HttpMethod.GET, makeAccountEntity(user), Account.class)
-                    .getBody();
+            account = restTemplate.exchange(API_BASE_URL + "account/balance", HttpMethod.GET, makeAccountEntity(user), Account.class).getBody();
         } catch (RestClientResponseException ex) {
             System.out.println(ex.getRawStatusCode() + " : " + ex.getResponseBodyAsString());
         }
@@ -40,28 +38,19 @@ public class AccountService {
     public void sendTransfer(AuthenticatedUser user, Transfer transfer) {
         AUTH_TOKEN = user.getToken();
         try {
-            restTemplate.exchange(BASE_URL + "account/sendbucks", HttpMethod.PUT, makeTransferEntity(transfer),
+            restTemplate.exchange(API_BASE_URL + "account/sendbucks", HttpMethod.PUT, makeTransferEntity(transfer),
                     Transfer.class);
         } catch (RestClientResponseException ex) {
             System.out.println(ex.getRawStatusCode() + " : " + ex.getResponseBodyAsString());
         }
     }
 
-    public void requestTransfer(AuthenticatedUser user, Transfer transfer) {
-        AUTH_TOKEN = user.getToken();
-        try {
-            restTemplate.exchange(BASE_URL + "account/requestbucks", HttpMethod.PUT, makeTransferEntity(transfer),
-                    Transfer.class);
-        } catch (RestClientResponseException ex) {
-            System.out.println(ex.getRawStatusCode() + " : " + ex.getResponseBodyAsString());
-        }
-    }
 
     public User[] getAllUsers(AuthenticatedUser user) {
         AUTH_TOKEN = user.getToken();
         User[] users = null;
         try {
-            users = restTemplate.exchange(BASE_URL + "account/finduser", HttpMethod.GET, makeAuthEntity(), User[].class)
+            users = restTemplate.exchange(API_BASE_URL + "account/finduser", HttpMethod.GET, makeAuthEntity(), User[].class)
                     .getBody();
         } catch (RestClientResponseException ex) {
             System.out.println(ex.getRawStatusCode() + " : " + ex.getResponseBodyAsString());
@@ -73,7 +62,7 @@ public class AccountService {
         AUTH_TOKEN = user.getToken();
         Transfer[] transfers = null;
         try {
-            transfers = restTemplate.exchange(BASE_URL + "account/transfers/history", HttpMethod.GET, makeAuthEntity(),
+            transfers = restTemplate.exchange(API_BASE_URL + "account/transfers/history", HttpMethod.GET, makeAuthEntity(),
                     Transfer[].class).getBody();
         } catch (RestClientResponseException ex) {
             System.out.println(ex.getRawStatusCode() + " : " + ex.getResponseBodyAsString());

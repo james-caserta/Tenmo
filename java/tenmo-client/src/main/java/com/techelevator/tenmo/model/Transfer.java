@@ -2,7 +2,6 @@ package com.techelevator.tenmo.model;
 
 import java.math.BigDecimal;
 
-// Client-side Transfer
 public class Transfer {
     private String transferType;
     private String transferStatus;
@@ -101,4 +100,18 @@ public class Transfer {
         this.amount = amount;
     }
 
+
+    @Override
+    public String toString() {
+        return "Transfer{" +
+                "transferType='" + transferType + '\'' +
+                ", transferStatus='" + transferStatus + '\'' +
+                ", accountFromId=" + accountFromId +
+                ", accountFromName='" + accountFromName + '\'' +
+                ", accountToId=" + accountToId +
+                ", accountToName='" + accountToName + '\'' +
+                ", amount=" + amount +
+                ", transferId=" + transferId +
+                '}';
+    }
 }

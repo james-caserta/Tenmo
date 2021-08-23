@@ -1,9 +1,8 @@
 package com.techelevator.tenmo.model;
 
 import java.util.Objects;
-import com.techelevator.tenmo.model.User;
 
-// Client
+
 public class User {
 
 	private Integer id;
@@ -32,7 +31,7 @@ public class User {
 		if (o == null || getClass() != o.getClass())
 			return false;
 		User user = (User) o;
-		return id == user.id && Objects.equals(username, user.username);
+		return id.equals(user.id) && Objects.equals(username, user.username);
 	}
 
 	@Override

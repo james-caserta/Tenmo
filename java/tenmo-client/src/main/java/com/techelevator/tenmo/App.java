@@ -38,9 +38,8 @@ public class App {
     private AccountService accountService;
 
     private static final String TRANSFER_TYPE_SEND = "Send";
-//    private static final String TRANSFER_TYPE_REQUEST = "Request";
     private static final String TRANSFER_STATUS_APPROVED = "Approved";
-//    private static final String TRANSFER_STATUS_PENDING = "Pending";
+
 
 
     public static void main(String[] args) {
@@ -98,13 +97,14 @@ public class App {
 // print transaction
         String transferMenu = String.format("\nTransfer History\n"+"ID     "+"   From/To         "+"              Status"+"     Amount");
         for (Transfer transfer : pastTransfers) {
-// print history
+
             String fromTo = (transfer.getAccountFromId() == currentUser.getUser().getId()) ?
                     "To: " + transfer.getAccountToName() : "From: " + transfer.getAccountFromName();
             System.out.print(transferMenu +"\n"+ transfer.getTransferId()+ "      " + fromTo+
                     "                    " + transfer.getTransferStatus()+ "       " + transfer.getAmount());
         }
-        transferMenu += "\nEnter transfer ID for details (Cancel: 0) ";
+
+        transferMenu += "\nEnter transfer ID for details (Cancel: 0)";
         int choice = 0;
         try {
             choice = console.getUserInputInteger(transferMenu);
@@ -112,9 +112,9 @@ public class App {
         } catch (NumberFormatException ex) {
             System.out.println("Invalid transfer ID number");
         }
+
+// print transaction history
         boolean found = false;
-//        if (choice == 0)
-//            return;
         if (choice != 0){
             for (Transfer transfer : pastTransfers) {
                 if (transfer.getTransferId() == choice) {
@@ -131,8 +131,7 @@ public class App {
             if (!found) {
 
                 System.out.println("Please choose a valid transfer ID (Cancel: 0)");
-
-                System.out.println("*** Transfer not found ***");
+                System.out.println("Transfer not found.");
 
             }
         }
@@ -141,6 +140,7 @@ public class App {
     private void viewPendingRequests() {
 //       not happening
     }
+
 
     private void sendBucks() {
 // send menu

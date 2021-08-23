@@ -19,9 +19,9 @@ import com.techelevator.tenmo.model.User;
 @RequestMapping("account")
 public class AccountController {
 
-    private AccountsDao accountsDao;
-    private UserDao userDao;
-    private TransfersDao transfersDao;
+    private final AccountsDao accountsDao;
+    private final UserDao userDao;
+    private final TransfersDao transfersDao;
 
 
     public AccountController(AccountsDao accountsDao, UserDao userDao, TransfersDao transfersDao) {
@@ -29,7 +29,6 @@ public class AccountController {
         this.userDao = userDao;
         this.transfersDao = transfersDao;
     }
-
 
     @RequestMapping(path = "/balance", method = RequestMethod.GET)
     public Accounts getBalance(Principal principal) {
@@ -51,13 +50,7 @@ public class AccountController {
     }
 
 
-
     private Accounts convertClientInitiatorToServerInitiator(Transfer transfer) {
-        // From the client side, transferFromId and transferToId are both USER IDs,
-        // NOT account IDs. Must find accounts by user ID 1st.
-        // Then change the Transfer object before writing to database.
-
-        // Accounts of User who initiated a send/request
         Accounts initiatorAccount = accountsDao.findAccountByUserId(transfer.getAccountFromId());
         transfer.setAccountFromId(initiatorAccount.getAccountId());
         return initiatorAccount;

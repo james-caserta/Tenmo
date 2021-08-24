@@ -16,12 +16,24 @@ import com.techelevator.tenmo.model.User;
 
 public class AccountService {
     public static String AUTH_TOKEN = "";
-    private String API_BASE_URL;
+    private final String API_BASE_URL;
     public RestTemplate restTemplate = new RestTemplate();
 
     public AccountService(String url) {
         API_BASE_URL = url;
     }
+
+//    public BigDecimal getBalance(AuthenticatedUser user) {
+//        AUTH_TOKEN = user.getToken();
+//        BigDecimal balance = new BigDecimal("0.00");
+//        Account account = new Account();
+//        try {
+//            account = restTemplate.exchange(API_BASE_URL + "account/balance", HttpMethod.GET, makeAccountEntity(user), Account.class).getBody();
+//        } catch (RestClientResponseException ex) {
+//            System.out.println(ex.getRawStatusCode() + " : " + ex.getResponseBodyAsString());
+//        }
+//        return balance;
+//    }
 
     public BigDecimal getBalance(AuthenticatedUser user) {
         AUTH_TOKEN = user.getToken();
@@ -32,20 +44,8 @@ public class AccountService {
         } catch (RestClientResponseException ex) {
             System.out.println(ex.getRawStatusCode() + " : " + ex.getResponseBodyAsString());
         }
-        return balance;
-    }git
-
-//    public BigDecimal getBalance(AuthenticatedUser user) {
-//        AUTH_TOKEN = user.getToken();
-//        BigDecimal balance = new BigDecimal("0.00");
-//        Account account = null;
-//        try {
-//            account = restTemplate.exchange(API_BASE_URL + "account/balance", HttpMethod.GET, makeAccountEntity(user), Account.class).getBody();
-//        } catch (RestClientResponseException ex) {
-//            System.out.println(ex.getRawStatusCode() + " : " + ex.getResponseBodyAsString());
-//        }
-//        return account.getBalance();
-//    }
+        return account.getBalance();
+    }
 
     public void sendTransfer(AuthenticatedUser user, Transfer transfer) {
         AUTH_TOKEN = user.getToken();

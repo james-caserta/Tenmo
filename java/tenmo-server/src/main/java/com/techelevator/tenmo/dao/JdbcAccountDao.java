@@ -2,20 +2,22 @@ package com.techelevator.tenmo.dao;
 
 import java.math.BigDecimal;
 
-import com.techelevator.tenmo.model.Accounts;
+import com.techelevator.tenmo.model.Account;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
 
 
 @Component
-public class JdbcAccountsDao implements AccountsDao {
-    private JdbcTemplate jdbcTemplate;
+public class JdbcAccountDao implements AccountDao {
+    private final JdbcTemplate jdbcTemplate;
 
-    public JdbcAccountsDao(JdbcTemplate jdbcTemplate) {
+    public JdbcAccountDao(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
     }
 
+
+    //*************     viewCurrentBalance issue ?? says never used in DAO   **************
     @Override
     public BigDecimal viewCurrentBalance(long userId) {
         String sql = "SELECT * "
@@ -23,6 +25,7 @@ public class JdbcAccountsDao implements AccountsDao {
                 + "WHERE user_id = ? ";
         SqlRowSet results = jdbcTemplate.queryForRowSet(sql, userId);
         BigDecimal balance = null;
+//      BigDecimal balance = new BigDecimal(userId);
         if (results.next()) {
             balance = results.getBigDecimal("balance");
         }
@@ -30,32 +33,32 @@ public class JdbcAccountsDao implements AccountsDao {
     }
 
     @Override
-    public BigDecimal creditBalance(Accounts accountInfo, BigDecimal amountToAdd) {
-        // Updates database
+    public BigDecimal creditBalance(Account accountInfo, BigDecimal amountToAdd) {
+        // Updates database - addition
         String addMoneyToDB = "UPDATE accounts SET balance = ? WHERE user_id = ?";
         jdbcTemplate.update(addMoneyToDB, accountInfo.getAccountBalance().add(amountToAdd),
                 accountInfo.getUserId());
-        // Updates Java object
+        // Updates object
         accountInfo.setAccountBalance(accountInfo.getAccountBalance().add(amountToAdd));
         return accountInfo.getAccountBalance();
     }
 
     @Override
-    public BigDecimal deductBalance(Accounts subtractAccount, BigDecimal amountToSubtract) {
+    public BigDecimal deductBalance(Account subtractAccount, BigDecimal amountToSubtract) {
         if (subtractAccount.correctMoney(amountToSubtract)) {
-            // Updates database
+            // Updates database - subtract
             String subtractFromSql = "UPDATE accounts SET balance = ? WHERE user_id = ?";
             jdbcTemplate.update(subtractFromSql, subtractAccount.getAccountBalance().subtract(amountToSubtract),
                     subtractAccount.getUserId());
-            // Updates Java object
+            // Updates object
             subtractAccount.setAccountBalance(subtractAccount.getAccountBalance().subtract(amountToSubtract));
         }
         return subtractAccount.getAccountBalance();
     }
 
     @Override
-    public Accounts findAccountByUserId(long userId) {
-        Accounts account = null;
+    public Account findAccountByUserId(long userId) {
+        Account account = null;
         String sql = "SELECT * FROM accounts WHERE user_id = ?";
         SqlRowSet result = jdbcTemplate.queryForRowSet(sql, userId);
         if (result.next()) {
@@ -65,19 +68,8 @@ public class JdbcAccountsDao implements AccountsDao {
     }
 
 
-// @Override
-// public Account findAccountByUserName(String name) {
-//    Account account = null;
-//    String sql = "SELECT * FROM accounts WHERE username = ?";
-//    SqlRowSet result = jdbcTemplate.queryForRowSet(sql, userId);
-//    if (result.next()) {
-//       account = mapRowToAccount(result);
-//    }
-//    return account;
-// }
-
-    private Accounts mapRowToAccount(SqlRowSet results) {
-        Accounts account = new Accounts();
+    private Account mapRowToAccount(SqlRowSet results) {
+        Account account = new Account();
         account.setAccountBalance(results.getBigDecimal("balance"));
         account.setAccountId(results.getLong("account_id"));
         account.setUserId(results.getLong("user_id"));

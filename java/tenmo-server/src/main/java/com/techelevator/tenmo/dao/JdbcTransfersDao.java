@@ -3,17 +3,21 @@ package com.techelevator.tenmo.dao;
 import java.util.ArrayList;
 import java.util.List;
 
+import java.math.BigDecimal;
+
+import com.techelevator.tenmo.model.Account;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
 
-import com.techelevator.tenmo.model.Accounts;
+import com.techelevator.tenmo.model.Account;
 import com.techelevator.tenmo.model.Transfer;
+
 @Component
 public class JdbcTransfersDao implements TransfersDao {
 
-    private JdbcTemplate jdbcTemplate;
-    private UserDao userDao;
+    private final JdbcTemplate jdbcTemplate;
+    private final UserDao userDao;
 
     public JdbcTransfersDao(JdbcTemplate jdbcTemplate, UserDao userDao) {
         this.jdbcTemplate = jdbcTemplate;
@@ -21,7 +25,7 @@ public class JdbcTransfersDao implements TransfersDao {
     }
 
     @Override
-    public List<Transfer> getAllTransfers(Accounts Accounts){
+    public List<Transfer> getAllTransfers(Account Accounts){
         List<Transfer> transfers = new ArrayList<>();
         String sql = "SELECT * FROM transfers AS t INNER JOIN transfer_statuses AS ts ON t.transfer_status_id = ts.transfer_status_id INNER JOIN transfer_types AS tt ON t.transfer_type_id = tt.transfer_type_id WHERE t.account_from = ? OR t.account_to = ?";
         SqlRowSet results = jdbcTemplate.queryForRowSet(sql, Accounts.getAccountId(), Accounts.getAccountId());
@@ -55,10 +59,10 @@ public class JdbcTransfersDao implements TransfersDao {
         return transferStatusId;
     }
 
-    // Creates new row in transfers table
+
     @Override
     public boolean addRowToTransfer(Transfer transfer) {
-        // We successfully retrieve both the status and type IDs
+        // get both status and type id
         int statusId = getTransferStatusId(transfer);
         int typeId = getTransferTypeId(transfer);
         if (statusId > 0 && typeId > 0) {
@@ -94,11 +98,11 @@ public class JdbcTransfersDao implements TransfersDao {
 
     @Override
     public void updateTransfer(Transfer transfer) {
-        // Pull the transfer by transfer ID and update its status
+        // update transfer by ID and update its status
         String sql = "UPDATE transfers SET transfer_status_id = "
                 + "(SELECT transfer_statuses.transfer_status_id FROM transfer_statuses "
                 + "WHERE transfer_statuses.transfer_status_desc = ?) WHERE transfer_id = ?";
-        // This should work regardless of whether the transfer is approved or rejected
+
         jdbcTemplate.update(sql, transfer.getTransferStatus(), transfer.getTransferId());
     }
 

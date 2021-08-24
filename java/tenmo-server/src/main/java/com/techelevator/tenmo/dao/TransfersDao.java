@@ -3,7 +3,8 @@ package com.techelevator.tenmo.dao;
 import java.math.BigDecimal;
 import java.util.List;
 
-import com.techelevator.tenmo.model.Accounts;
+import com.techelevator.tenmo.model.Account;
+import com.techelevator.tenmo.model.Account;
 
 import com.techelevator.tenmo.model.Transfer;
 
@@ -15,7 +16,7 @@ public interface TransfersDao {
 
 
 
-    List<Transfer> getAllTransfers(Accounts account);
+    List<Transfer> getAllTransfers(Account account);
 
 
 

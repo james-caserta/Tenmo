@@ -1,16 +1,14 @@
 package com.techelevator.tenmo.controller;
 
-import java.math.BigDecimal;
 import java.security.Principal;
 import java.util.List;
 
+import com.techelevator.tenmo.model.Account;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-
-import com.techelevator.tenmo.dao.AccountsDao;
+import com.techelevator.tenmo.dao.AccountDao;
 import com.techelevator.tenmo.dao.TransfersDao;
 import com.techelevator.tenmo.dao.UserDao;
-import com.techelevator.tenmo.model.Accounts;
 import com.techelevator.tenmo.model.Transfer;
 import com.techelevator.tenmo.model.User;
 
@@ -19,45 +17,44 @@ import com.techelevator.tenmo.model.User;
 @RequestMapping("account")
 public class AccountController {
 
-    private final AccountsDao accountsDao;
+    private final AccountDao accountDao;
     private final UserDao userDao;
     private final TransfersDao transfersDao;
 
 
-    public AccountController(AccountsDao accountsDao, UserDao userDao, TransfersDao transfersDao) {
-        this.accountsDao = accountsDao;
+    public AccountController(AccountDao accountDao, UserDao userDao, TransfersDao transfersDao) {
+        this.accountDao = accountDao;
         this.userDao = userDao;
         this.transfersDao = transfersDao;
     }
 
     @RequestMapping(path = "/balance", method = RequestMethod.GET)
-    public Accounts getBalance(Principal principal) {
+    public Account getBalance(Principal principal) {
         String userName = principal.getName();
         long userId = userDao.findIdByUsername(userName);
-        Accounts account = accountsDao.findAccountByUserId(userId);
-        return account;
+        return accountDao.findAccountByUserId(userId);
     }
 
     @RequestMapping(path = "/sendbucks", method = RequestMethod.PUT)
     public void sendBucks(@RequestBody Transfer transfer) {
-        Accounts accounts = convertClientInitiatorToServerInitiator(transfer);
-        Accounts personOwed = convertClientReactorToServerReactor(transfer);
+        Account accounts = clientToServerInitiator(transfer);
+        Account personOwed = clientToServerReactor(transfer);
         if (accounts.correctMoney(transfer.getAmount())) {
-            accountsDao.deductBalance(accounts, transfer.getAmount());
-            accountsDao.creditBalance(personOwed, transfer.getAmount());
+            accountDao.deductBalance(accounts, transfer.getAmount());
+            accountDao.creditBalance(personOwed, transfer.getAmount());
             transfersDao.addRowToTransfer(transfer);
         }
     }
 
 
-    private Accounts convertClientInitiatorToServerInitiator(Transfer transfer) {
-        Accounts initiatorAccount = accountsDao.findAccountByUserId(transfer.getAccountFromId());
+    private Account clientToServerInitiator(Transfer transfer) {
+        Account initiatorAccount = accountDao.findAccountByUserId(transfer.getAccountFromId());
         transfer.setAccountFromId(initiatorAccount.getAccountId());
         return initiatorAccount;
     }
 
-    private Accounts convertClientReactorToServerReactor(Transfer transfer) {
-        Accounts reactorAccount = accountsDao.findAccountByUserId(transfer.getAccountToId());
+    private Account clientToServerReactor(Transfer transfer) {
+        Account reactorAccount = accountDao.findAccountByUserId(transfer.getAccountToId());
         transfer.setAccountToId(reactorAccount.getAccountId());
         return reactorAccount;
     }
@@ -65,17 +62,17 @@ public class AccountController {
     @RequestMapping(path = "/transfers/history", method = RequestMethod.GET)
     public Transfer[] getTransferHistory(Principal principal) {
         User user = userDao.findByUsername(principal.getName());
-        Accounts account = accountsDao.findAccountByUserId(user.getId());
+        Account account = accountDao.findAccountByUserId(user.getId());
         List<Transfer> transferList = transfersDao.getAllTransfers(account);
         for (Transfer serverTransfer : transferList) {
-            convertServerTransferToClient(serverTransfer);
+            serverTransferToClient(serverTransfer);
         }
         Transfer[] transfers = new Transfer[transferList.size()];
         transfers = transferList.toArray(transfers);
         return transfers;
     }
 
-    private void convertServerTransferToClient(Transfer transfer) {
+    private void serverTransferToClient(Transfer transfer) {
         User userFrom = userDao.findUserByAccountId(transfer.getAccountFromId());
         User userTo = userDao.findUserByAccountId(transfer.getAccountToId());
         transfer.setAccountFromId(userFrom.getId());

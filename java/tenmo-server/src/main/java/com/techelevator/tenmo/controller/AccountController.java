@@ -1,5 +1,6 @@
 package com.techelevator.tenmo.controller;
 
+import java.math.BigDecimal;
 import java.security.Principal;
 import java.util.List;
 
@@ -29,10 +30,11 @@ public class AccountController {
     }
 
     @RequestMapping(path = "/balance", method = RequestMethod.GET)
-    public Account getBalance(Principal principal) {
+    public BigDecimal getBalance(Principal principal) {
         String userName = principal.getName();
         long userId = userDao.findIdByUsername(userName);
-        return accountDao.findAccountByUserId(userId);
+        Account account = accountDao.findAccountByUserId(userId);
+        return account.getAccountBalance();
     }
 
     @RequestMapping(path = "/sendbucks", method = RequestMethod.PUT)

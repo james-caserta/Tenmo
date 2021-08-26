@@ -36,15 +36,16 @@ public class AccountService {
 //    }
 
     public BigDecimal getBalance(AuthenticatedUser user) {
-        AUTH_TOKEN = user.getToken();
-        BigDecimal balance = new BigDecimal("0.00");
-        Account account = new Account();
         try {
-            account = restTemplate.exchange(API_BASE_URL + "account/balance", HttpMethod.GET, makeAccountEntity(user), Account.class).getBody();
+            AUTH_TOKEN = user.getToken();
+            //BigDecimal balance = new BigDecimal("0.00");
+            //Account account = new Account();
+            return restTemplate.exchange(API_BASE_URL + "account/balance", HttpMethod.GET, makeAccountEntity(user), BigDecimal.class).getBody();
         } catch (RestClientResponseException ex) {
             System.out.println(ex.getRawStatusCode() + " : " + ex.getResponseBodyAsString());
+            return new BigDecimal(0);
         }
-        return account.getBalance();
+        //return account.getBalance();
     }
 
     public void sendTransfer(AuthenticatedUser user, Transfer transfer) {
